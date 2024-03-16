@@ -1,29 +1,18 @@
-# README #
+# SISTREV WebScraper
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is the repo for my PESTI Project: Development of a web scraper for bibliographic reviews
+This project consists of a Python Notebook that assists an investigator in the process of systematic reviews
 
-### What is this repository for? ###
+### Dependencies
+ - jupyter
+ - numpy
+ - pandas
+ - rispy
+ - asreview
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+_**NOTE**: I will not provide a guide on how to install these (for now)_
 
-### How do I get set up? ###
+### How do I run this?
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+As stated previously, the main entrypoint is a Python Notebook ([sistrev.ipynb](sistrev.ipynb)).
+You will need a Jupyter environment setup to run the Notebook
