@@ -31,7 +31,10 @@ class DataCleaner:
             self.in_entries = self.in_entries + rispy.load(f, encoding='utf-8')
 
     def clean_entries(self) -> tuple[int, int, int]:
-        """Removes duplicates, entries without title and entries without abstract"""
+        """
+        Removes duplicates, entries without title and entries without abstract
+        :returns tuple: (number of duplicates, number of entries without title, number of entries without abstract)
+        """
         df = pd.DataFrame(self.in_entries)
 
         data_size = df.shape[0]
@@ -58,6 +61,8 @@ class DataCleaner:
 
         # store the clean data to out_entries, so we can export later
         self.out_entries = clean_df.to_dict("records")
+
+        print(clean_df.shape[0])
 
         return n_duplicated, n_no_title, n_no_abstract
 

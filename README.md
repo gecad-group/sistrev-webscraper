@@ -7,6 +7,7 @@ This project consists of a Python Notebook that assists an investigator in the p
  - jupyter
  - numpy
  - pandas
+ - matplotlib
  - rispy
  - asreview
 
