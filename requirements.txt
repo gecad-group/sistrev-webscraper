@@ -1,0 +1,4 @@
+rispy~=0.9.0
+pandas~=2.2.1
+requests~=2.31.0
+selenium~=4.19.0
