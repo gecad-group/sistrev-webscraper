@@ -62,10 +62,17 @@ class DataCleaner:
         # store the clean data to out_entries, so we can export later
         self.out_entries = clean_df.to_dict("records")
 
+        # remove keys when value is NaN
+        self.out_entries = [{k: v for k, v in x.items() if v == v} for x in self.out_entries]
+
         # print(clean_df.shape[0])
 
         return n_duplicated, n_no_title, n_no_abstract
 
+    def export_data(self):
+        print(self.out_entries)
+        with open('out.ris', 'w', encoding='utf-8') as outfile:
+            rispy.dump(self.out_entries, outfile)
 
 if __name__ == '__main__':
     cleaner = DataCleaner()
@@ -73,3 +80,4 @@ if __name__ == '__main__':
     print(cleaner.count_in_entries())
     print(cleaner.clean_entries())
     print(cleaner.count_out_entries())
+    cleaner.export_data()
