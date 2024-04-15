@@ -35,7 +35,7 @@ class metadataScraper:
             self.options.add_argument("--headless")
             print("Running headless")
 
-    def scrape(self, search: str) -> None:
+    def scrape(self, search: str) -> list[str]:
         prerunchecks.check_network()
 
         if self.driver is None:
@@ -94,6 +94,8 @@ class metadataScraper:
 
         print("Number of articles: ", n_articles)
 
+        file_list = []
+
         for i in range(1, n_articles, 1000):
             # This refreshes the page, resetting the input box ids
             driver.refresh()
@@ -131,9 +133,15 @@ class metadataScraper:
             while not os.path.exists(self.download_path + "/savedrecs.ris"):
                 time.sleep(2)
 
-            os.rename(self.download_path + "/savedrecs.ris", self.download_path + f"/{search.lower().replace(' ', '_')}_{i}_{i+999}.ris")
+            final_filename = self.download_path + f"/{search.lower().replace(' ', '_')}_{i}_{i+999}.ris"
+
+            os.rename(self.download_path + "/savedrecs.ris", final_filename)
+
+            file_list.append(final_filename)
 
             print("  (DONE)")
+
+        return final_filename
 
 
     def quit_driver(self):
