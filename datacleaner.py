@@ -62,7 +62,7 @@ class DataCleaner:
         # store the clean data to out_entries, so we can export later
         self.out_entries = clean_df.to_dict("records")
 
-        print(clean_df.shape[0])
+        # print(clean_df.shape[0])
 
         return n_duplicated, n_no_title, n_no_abstract
 
