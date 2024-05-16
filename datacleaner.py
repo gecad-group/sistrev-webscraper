@@ -30,7 +30,7 @@ class DataCleaner:
         with open(filepath, 'r', encoding='utf-8') as f:
             self.in_entries = self.in_entries + rispy.load(f, encoding='utf-8')
 
-    def clean_entries(self) -> tuple[int, int, int]:
+    def clean_entries(self) -> tuple[int, int, int, int]:
         """
         Removes duplicates, entries without title and entries without abstract
         :returns tuple: (number of duplicates, number of entries without title, number of entries without abstract)
@@ -59,6 +59,14 @@ class DataCleaner:
 
         n_no_abstract = df.shape[0] - clean_df.shape[0]
 
+        # Removing no DOI entries
+        # If an entry does not have a Digital Object Identifier, it is removed as we cannot retrieve the PDF
+        #  and the article itself probably isn't very relevant
+        df = clean_df
+        clean_df = df.dropna(subset=['doi'])
+
+        n_no_doi = df.shape[0] - clean_df.shape[0]
+
         # store the clean data to out_entries, so we can export later
         self.out_entries = clean_df.to_dict("records")
 
@@ -67,11 +75,10 @@ class DataCleaner:
 
         # print(clean_df.shape[0])
 
-        return n_duplicated, n_no_title, n_no_abstract
+        return n_duplicated, n_no_title, n_no_abstract, n_no_doi
 
-    def export_data(self):
-        print(self.out_entries)
-        with open('out.ris', 'w', encoding='utf-8') as outfile:
+    def export_data(self, path: str = ""):
+        with open(path + '/out.ris', 'w', encoding='utf-8') as outfile:
             rispy.dump(self.out_entries, outfile)
 
 if __name__ == '__main__':
@@ -80,4 +87,4 @@ if __name__ == '__main__':
     print(cleaner.count_in_entries())
     print(cleaner.clean_entries())
     print(cleaner.count_out_entries())
-    cleaner.export_data()
+    # cleaner.export_data()
