@@ -7,6 +7,15 @@ import asreview
 from asreview.entry_points import LABEntryPoint
 import uuid
 
+class ASReview_Interfacer:
+    def __init__(self):
+        pass
+
+    def createProject(self, name: str = "", id: str = "") :
+        if len(id) == 0:
+            id = uuid.uuid4().hex
+
+
 
 def deleteAllProjects():
     for project in asreview.project.get_projects():
@@ -26,6 +35,7 @@ if __name__ == '__main__':
     n_proj_prev = len(asreview.project.get_projects())
 
     proj = createProject("Test Project")
+    proj.add_dataset('./testdata/artf-intl-wos.ris')
 
     print(f"{n_proj_prev} to {len(asreview.project.get_projects())}")
 
@@ -33,5 +43,8 @@ if __name__ == '__main__':
 
     p = Process(target=LABEntryPoint.execute, args=(LABEntryPoint(), []))
     p.start()
-    time.sleep(10)
-    p.kill()
+
+    # while project review is not finished
+    while proj.reviews[0].status != "finished":
+        time.sleep(5)
+        proj = asreview.project.ASReviewProject(proj.project_path, proj.project_id)
