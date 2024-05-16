@@ -1,5 +1,4 @@
-import re
-
+import shutil
 import selenium.webdriver.firefox.webdriver
 from selenium import webdriver
 from selenium.common import TimeoutException, NoSuchElementException
@@ -14,18 +13,19 @@ import prerunchecks
 
 
 class metadataScraper:
-    download_path = os.getenv("temp") + '\\SistRev\\'
-
     url = "https://www.webofscience.com/wos/woscc/basic-search"
 
     driver: selenium.webdriver.firefox.webdriver.WebDriver | None
 
-    def __init__(self):
+    def __init__(self, download_path: str = os.getenv("temp") + '\\SistRev\\', ignore_limits=False):
         self.driver = None
         self.config = ConfigParser()
         self.config.read('config.ini')
+        self.download_path = download_path
+        self.ignore_limits = ignore_limits
 
-        os.makedirs(metadataScraper.download_path, exist_ok=True)
+        shutil.rmtree(self.download_path, ignore_errors=True)
+        os.makedirs(self.download_path, exist_ok=True)
 
         self.options = webdriver.FirefoxOptions()
         self.options.set_preference("browser.download.folderList", 2)
@@ -63,9 +63,9 @@ class metadataScraper:
         # The animations take some time to allow me to click the buttons
         time.sleep(2)
 
-        # Deny the cookies (It's useless to store them, they get reset on each scrape)
+        # Accept the cookies (It's useless to store them, they get reset on each scrape, but it makes the site happy)
         try:
-            driver.find_element(By.XPATH, self.config.get('metaScraper', 'xpath_deny_cookies')).click()
+            driver.find_element(By.XPATH, self.config.get('metaScraper', 'xpath_accept_cookies')).click()
         except NoSuchElementException:
             pass
 
@@ -94,6 +94,19 @@ class metadataScraper:
 
         print("Number of articles: ", n_articles)
 
+        n_limit = self.config.getint('metaScraper', 'article_limit')
+
+        if n_articles > n_limit and self.ignore_limits is False:
+            r = input(f"Number of articles ({n_articles}) larger than the set limit of {n_limit}!\n"
+                      f"How many to download? (0 for all, -1 for none): ")
+            if int(r) == 0:
+                print("WARNING: This might take a while...")
+            elif int(r) < 0:
+                return []
+            else:
+                n_articles = int(r)
+
+
         file_list = []
 
         for i in range(1, n_articles, 1000):
@@ -119,21 +132,20 @@ class metadataScraper:
             # Fill end of range
             end = driver.find_element(By.XPATH, self.config.get('metaScraper', 'xpath_records_range_end'))
             end.clear()
-            end.send_keys(str(i+999))
+            end.send_keys(str(i + 999))
 
             # Info to export
             driver.find_element(By.XPATH, self.config.get('metaScraper', 'xpath_info_sel')).click()
             driver.find_element(By.XPATH, self.config.get('metaScraper', 'xpath_info_abst_btn')).click()
-
             # Click the export button
             driver.find_element(By.XPATH, self.config.get('metaScraper', 'xpath_export_btn')).click()
 
-            print(f"Downloading the metadata ({i} to {i+999})...", end='')
+            print(f"Downloading the metadata ({i} to {i + 999})...", end='')
 
             while not os.path.exists(self.download_path + "/savedrecs.ris"):
                 time.sleep(2)
 
-            final_filename = self.download_path + f"/{search.lower().replace(' ', '_')}_{i}_{i+999}.ris"
+            final_filename = self.download_path + f"/{search.lower().replace(' ', '_')}_{i}_{i + 999}.ris"
 
             os.rename(self.download_path + "/savedrecs.ris", final_filename)
 
@@ -141,8 +153,7 @@ class metadataScraper:
 
             print("  (DONE)")
 
-        return final_filename
-
+        return file_list
 
     def quit_driver(self):
         if self.driver is not None:
@@ -151,7 +162,7 @@ class metadataScraper:
     def getListOfRanges(total: int) -> list[tuple[int, int]]:
         output = []
         for i in range(1, total, 1000):
-            output.append((i, i+999))
+            output.append((i, i + 999))
 
         return output
 
