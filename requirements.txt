@@ -5,3 +5,4 @@ selenium~=4.19.0
 asreview~=1.6.2
 pycurl~=7.45.3
 certifi~=2024.2.2
+matplotlib~=3.9.0
