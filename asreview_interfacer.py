@@ -7,15 +7,6 @@ import asreview
 from asreview.entry_points import LABEntryPoint
 import uuid
 
-class ASReview_Interfacer:
-    def __init__(self):
-        pass
-
-    def createProject(self, name: str = "", id: str = "") :
-        if len(id) == 0:
-            id = uuid.uuid4().hex
-
-
 
 def deleteAllProjects():
     for project in asreview.project.get_projects():
@@ -29,6 +20,13 @@ def createProject(name: str = "", id: str = "") -> asreview.project.ASReviewProj
         name = id
 
     return asreview.project.ASReviewProject.create(Path(asreview.utils.asreview_path(), id), project_id=id, project_name=name)
+
+def launch_interface() -> Process:
+    p = Process(target=LABEntryPoint.execute, args=(LABEntryPoint(), []))
+    p.start()
+
+    return p
+
 
 if __name__ == '__main__':
     deleteAllProjects()
