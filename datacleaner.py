@@ -32,40 +32,29 @@ class DataCleaner:
 
     def clean_entries(self) -> tuple[int, int, int, int]:
         """
-        Removes duplicates, entries without title and entries without abstract
-        :returns tuple: (number of duplicates, number of entries without title, number of entries without abstract)
+        Removes duplicates, entries without title, entries without abstract and entries without doi
+        :returns tuple: (number of duplicates, number of entries without title, number of entries without abstract, number of entries without doi)
         """
         df = pd.DataFrame(self.in_entries)
 
         data_size = df.shape[0]
-
-        # Removing duplicates
-        # (An entry is considered a duplicate if the title, type (Journal, Article, etc...) and abstract are the same.
-        # We keep the last entry in the dataframe because that one is usually the most recent, in case a correction was
-        # issued to an existing article
-        clean_df = df.drop_duplicates(subset=['title', 'type_of_reference', 'abstract'], keep='last')
-
-        n_duplicated = df.shape[0] - clean_df.shape[0]
-
-        # Removing no title
-        df = clean_df
-        clean_df = df.dropna(subset=['title'])
-
-        n_no_title = df.shape[0] - clean_df.shape[0]
-
-        # Removing no abstract
-        df = clean_df
-        clean_df = df.dropna(subset=['abstract'])
-
-        n_no_abstract = df.shape[0] - clean_df.shape[0]
+        clean_df = df
 
         # Removing no DOI entries
         # If an entry does not have a Digital Object Identifier, it is removed as we cannot retrieve the PDF
         #  and the article itself probably isn't very relevant
-        df = clean_df
-        clean_df = df.dropna(subset=['doi'])
+        # We remove these first, because it's the method that eliminates the most articles
+        clean_df, n_no_doi = self.clean_no_doi(clean_df)
 
-        n_no_doi = df.shape[0] - clean_df.shape[0]
+        # Removing no title
+        clean_df, n_no_title = self.clean_no_title(clean_df)
+
+        # Removing no abstract
+        clean_df, n_no_abstract = self.clean_no_abst(clean_df)
+
+        # Removing duplicates.
+        # Duplicates are removed last, as the other method eliminate the articles that are "bad data" first
+        clean_df, n_duplicated = self.clean_duplicate(clean_df)
 
         # store the clean data to out_entries, so we can export later
         self.out_entries = clean_df.to_dict("records")
@@ -76,6 +65,33 @@ class DataCleaner:
         # print(clean_df.shape[0])
 
         return n_duplicated, n_no_title, n_no_abstract, n_no_doi
+
+    def clean_no_doi(self, clean_df):
+        df = clean_df
+        clean_df = df.dropna(subset=['doi'])
+        n_no_doi = df.shape[0] - clean_df.shape[0]
+        return clean_df, n_no_doi
+
+    def clean_no_abst(self, clean_df):
+        df = clean_df
+        clean_df = df.dropna(subset=['abstract'])
+        n_no_abstract = df.shape[0] - clean_df.shape[0]
+        return clean_df, n_no_abstract
+
+    def clean_no_title(self, clean_df):
+        df = clean_df
+        clean_df = df.dropna(subset=['title'])
+        n_no_title = df.shape[0] - clean_df.shape[0]
+        return clean_df, n_no_title
+
+    def clean_duplicate(self, df):
+        # Removing duplicates
+        # (An entry is considered a duplicate if the title, type (Journal, Article, etc...) and abstract are the same.
+        # We keep the last entry in the dataframe because that one is usually the most recent, in case a correction was
+        # issued to an existing article
+        clean_df = df.drop_duplicates(subset=['title', 'type_of_reference', 'abstract'], keep='last')
+        n_duplicated = df.shape[0] - clean_df.shape[0]
+        return clean_df, n_duplicated
 
     def export_data(self, path: str = ""):
         with open(path + '/out.ris', 'w', encoding='utf-8') as outfile:
