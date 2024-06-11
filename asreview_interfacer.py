@@ -29,20 +29,21 @@ def launch_interface() -> Process:
 
 
 if __name__ == '__main__':
-    deleteAllProjects()
-    n_proj_prev = len(asreview.project.get_projects())
+    name = input("What name should we give the project? ")
 
-    proj = createProject("Test Project")
-    proj.add_dataset('./testdata/artf-intl-wos.ris')
+    proj = createProject(name)
 
-    print(f"{n_proj_prev} to {len(asreview.project.get_projects())}")
+    print("What is the path of the dataset(s) to import? (Press ENTER with empty input to terminate)")
+    f = input(": ")
+    while (len(f) > 0):
+        proj.add_dataset(os.path.abspath(f))
+        f = input(": ")
 
     # proj.add_dataset(os.getcwd()+'\\out.ris')
 
     p = Process(target=LABEntryPoint.execute, args=(LABEntryPoint(), []))
     p.start()
 
-    # while project review is not finished
-    while proj.reviews[0].status != "finished":
-        time.sleep(5)
-        proj = asreview.project.ASReviewProject(proj.project_path, proj.project_id)
+    time.sleep(15)
+    input("Press ENTER to end program. You need to close the browser tab manually!")
+    p.kill()

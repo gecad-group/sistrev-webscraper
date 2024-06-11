@@ -1,3 +1,5 @@
+import os.path
+
 import rispy
 import pandas as pd
 
@@ -85,22 +87,37 @@ class DataCleaner:
         return clean_df, n_no_title
 
     def clean_duplicate(self, df):
-        # Removing duplicates
-        # (An entry is considered a duplicate if the title, type (Journal, Article, etc...) and abstract are the same.
-        # We keep the last entry in the dataframe because that one is usually the most recent, in case a correction was
-        # issued to an existing article
-        clean_df = df.drop_duplicates(subset=['title', 'type_of_reference', 'abstract'], keep='last')
+        # Removing duplicates (An entry is considered a duplicate if the title, type (Journal, Article, etc...) and
+        # abstract are the same. We keep the first entry in the dataframe because that one is usually the most
+        # relevant, per the Web Of Science criteria.
+        clean_df = df.drop_duplicates(subset=['title', 'type_of_reference'], keep='first')
         n_duplicated = df.shape[0] - clean_df.shape[0]
         return clean_df, n_duplicated
 
     def export_data(self, path: str = ""):
+        os.makedirs(os.path.abspath(path), exist_ok=True)
         with open(path + '/out.ris', 'w', encoding='utf-8') as outfile:
             rispy.dump(self.out_entries, outfile)
 
 if __name__ == '__main__':
     cleaner = DataCleaner()
-    cleaner.add_file('testdata/artf-intl-wos.ris')
-    print(cleaner.count_in_entries())
-    print(cleaner.clean_entries())
-    print(cleaner.count_out_entries())
-    # cleaner.export_data()
+    #cleaner.add_file('testdata/artf-intl-wos.ris')
+
+    print("Path of the files to import (Press ENTER with empty input to terminate).")
+    f = input(": ")
+    while (len(f) > 0):
+        cleaner.add_file(os.path.abspath(f))
+        f = input(": ")
+
+    print(f'Total number of articles imported: {cleaner.count_in_entries()}')
+
+    n_dup, n_no_title, n_no_abst, n_no_doi = cleaner.clean_entries()
+    clean = cleaner.count_out_entries()
+
+    print(f'Number of duplicated entries: {n_dup}')
+    print(f'Number of entries without title: {n_no_title}')
+    print(f'Number of entries without abstract: {n_no_abst}')
+    print(f'Number of entries without doi: {n_no_doi}')
+    print(f'Number of entries after cleanup: {clean}')
+
+    cleaner.export_data("export")
