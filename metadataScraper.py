@@ -119,6 +119,7 @@ class metadataScraper:
         for i in metadataScraper.getListOfRanges(n_articles):
             # This refreshes the page, resetting the input box ids
             driver.refresh()
+            time.sleep(2)
 
             wait.until(EC.visibility_of_element_located((By.XPATH, self.config.get('metaScraper', 'xpath_export_sel'))))
 
@@ -153,6 +154,8 @@ class metadataScraper:
                 time.sleep(2)
 
             final_filename = self.download_path + f"/{search.lower().replace(' ', '_')}_{i[0]}_{i[1]}.ris"
+
+            time.sleep(2)
 
             os.rename(self.download_path + "/savedrecs.ris", final_filename)
 
