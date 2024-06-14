@@ -1,0 +1,37 @@
+TY  - STD
+AU  - RuiFPB
+TI  -
+T2  - Test entry for no title
+AB  - Let's add an abstract so it only catches the no title case
+DO  - 10.1109/ecai50035.2020.9223186
+ER  -
+
+TY  - STD
+AU  - RuiFPB
+TI  - Test case for a article without abstract
+T2  - Test entry for no abstract
+DO  - 10.1109/ecai50035.2020.9223186
+ER  -
+
+TY  - STD
+AU  - RuiFPB
+TI  - Test case for duplicates
+T2  - Test entry for duplicates
+AB  - Let's add an abstract so it only catches the duplicate
+DO  - 10.1109/ecai50035.2020.9223186
+ER  -
+
+TY  - STD
+AU  - RuiFPB
+TI  - Test case for duplicates
+T2  - Test entry for duplicates
+AB  - Let's add an abstract so it only catches the duplicate
+DO  - 10.1109/ecai50035.2020.9223186
+ER  -
+
+TY  - STD
+AU  - RuiFPB
+TI  - Test case for empty doi
+T2  - Test entry for empty doi
+AB  - Let's add an abstract so it only catches the no doi
+ER  -
