@@ -33,7 +33,8 @@ class metadataScraper:
         self.options.set_preference("browser.helperApps.neverAsk.saveToDisk", "*")
         if self.config.getboolean('metaScraper', 'headless_driver'):
             self.options.add_argument("--headless")
-            print("Running headless")
+        else:
+            print("Running without --headless tag")
 
     def scrape(self, search: str) -> list[str]:
         prerunchecks.check_network()
@@ -173,17 +174,28 @@ class metadataScraper:
 
     def getListOfRanges(total: int) -> list[tuple[int, int]]:
         output = []
-        for i in range(1, total, 1000):
+        for i in range(1, total, 1000):     # Can't handle total = 1
             output.append((i, i + 999 if (i+999) < total else total))
+
+        if total == 1:
+            output.append((1, total))
 
         return output
 
 
 if __name__ == "__main__":
     scraper = metadataScraper(download_path="downloads")
-    keyword = input("What will we research today? ")
 
-    scraper.scrape(keyword)
+    keywords: list[str] = []
+
+    print("Keywords to search for (Press ENTER with empty input to terminate).")
+    search = input(": ")
+    while len(search) > 0:
+        keywords.append(search)
+        search = input(": ")
+
+    for keyword in keywords:
+        scraper.scrape(keyword)
 
     print(f"Check {scraper.download_path} for your files.")
 
