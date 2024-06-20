@@ -150,14 +150,16 @@ class metadataScraper:
 
             print(f"Downloading the metadata ({i[0]} to {i[1]})...", end='')
 
-            while not os.path.exists(self.download_path + "/savedrecs.ris"):
-                time.sleep(2)
+            time.sleep(2)
 
-            final_filename = self.download_path + f"/{search.lower().replace(' ', '_')}_{i[0]}_{i[1]}.ris"
+            while not os.path.exists(self.download_path + "/savedrecs.ris"):
+                time.sleep(5)
+
+            final_filename = self.download_path + f"/{search.lower().replace(' ', '_').replace('"', '')}_{i[0]}_{i[1]}.ris"
 
             time.sleep(2)
 
-            os.rename(self.download_path + "/savedrecs.ris", final_filename)
+            os.rename(os.path.abspath(self.download_path + "/savedrecs.ris"), final_filename)
 
             file_list.append(final_filename)
 
