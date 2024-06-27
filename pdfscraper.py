@@ -9,7 +9,7 @@ import os
 import re
 from datacleaner import DataCleaner
 
-scihub_urls = ['https://sci-hub.se', 'https://sci-hub.yt']
+scihub_urls = ['https://sci-hub.se', 'https://sci-hub.st', 'https://sci-hub.yt']
 
 class PDFScraper:
     def download_with_doi(doi: str, filename: str):
@@ -122,3 +122,5 @@ if __name__ == '__main__':
         print("https://doi.org/" + doi)
 
     print("Total Failed", len(failed_downloads), "/", total )
+    print("Try checking the publisher using the addresses above or searching for the DOI in "
+          "https://www.researchgate.net/")
