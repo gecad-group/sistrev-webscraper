@@ -104,7 +104,7 @@ if __name__ == '__main__':
     #cleaner.add_file('testdata/artf-intl-wos.ris')
 
     print("Path of the files to import (Press ENTER with empty input to terminate).")
-    f = input(": ")
+    f = input(": ").replace('"', '')
     while (len(f) > 0):
         cleaner.add_file(os.path.abspath(f))
         f = input(": ")
