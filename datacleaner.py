@@ -39,6 +39,20 @@ class DataCleaner:
         """
         df = pd.DataFrame(self.in_entries)
 
+        # Check if titles exist in any entry
+        if 'title' not in df.columns:
+            print("No regular title entries found, checking for primary title")
+            # Check if primary_title exists (ScienceDirect uses primary_title (T1) when export RIS instead of title (TI)
+            if 'primary_title' in df.columns:
+                # Rename the primary title column in the data frame to title
+                df.rename(columns={'primary_title': 'title'}, inplace=True)
+            # If neither exist, the file could be invalid or corrupted
+            else:
+                raise Exception("Title and Primary Title do not exist, check the export options for the file on the database!")
+        # If both title and primary title exist, fill empty title values with the primary title
+        elif 'primary_title' in df.columns and 'title' in df.columns:
+            df['title'] = df['title'].fillna(df['primary_title'])
+
         data_size = df.shape[0]
         clean_df = df
 
@@ -107,7 +121,7 @@ if __name__ == '__main__':
     f = input(": ").replace('"', '')
     while (len(f) > 0):
         cleaner.add_file(os.path.abspath(f))
-        f = input(": ")
+        f = input(": ").replace('"', '')
 
     print(f'Total number of articles imported: {cleaner.count_in_entries()}')
 
