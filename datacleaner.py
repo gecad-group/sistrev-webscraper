@@ -129,6 +129,7 @@ class DataCleaner:
         os.makedirs(os.path.abspath(path), exist_ok=True)
         with open(path + '/out.ris', 'w', encoding='utf-8') as outfile:
             rispy.dump(self.out_entries, outfile)
+        print("Cleaned results exported to" + path + '/out.ris')
 
 if __name__ == '__main__':
     logging.basicConfig(filename="log/datacleaner.log", level=logging.INFO, encoding='UTF-8', filemode='w')
@@ -151,5 +152,6 @@ if __name__ == '__main__':
     print(f'Number of entries without abstract: {n_no_abst}')
     print(f'Number of entries without doi: {n_no_doi}')
     print(f'Number of entries after cleanup: {clean}')
+    print("Additional info about removed files in log/datacleaner.log")
 
     cleaner.export_data("export")
