@@ -47,14 +47,15 @@ class DataCleaner:
             print("No regular title entries found, checking for primary title")
             # Check if primary_title exists (ScienceDirect uses primary_title (T1) when export RIS instead of title (TI)
             if 'primary_title' in df.columns:
-                # Rename the primary title column in the data frame to title
-                df.rename(columns={'primary_title': 'title'}, inplace=True)
+                # Copy data from primary_title to title
+                df['title'] = df.loc[:, 'primary_title']
             # If neither exist, the file could be invalid or corrupted
             else:
                 raise Exception("Title and Primary Title do not exist, check the export options for the file on the database!")
         # If both title and primary title exist, fill empty title values with the primary title
         elif 'primary_title' in df.columns and 'title' in df.columns:
             df['title'] = df['title'].fillna(df['primary_title'])
+            df['primary_title'] = df['primary_title'].fillna(df['title'])
 
         data_size = df.shape[0]
         clean_df = df
