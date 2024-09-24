@@ -3,6 +3,9 @@ import os.path
 import rispy
 import pandas as pd
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DataCleaner:
     """
@@ -82,28 +85,42 @@ class DataCleaner:
 
         return n_duplicated, n_no_title, n_no_abstract, n_no_doi
 
+    def log_removal(self, df: pd.DataFrame):
+        rem_entries = df[['title', 'authors', 'type_of_reference', 'doi']].to_dict("records")
+        rem_entries = [{k: v for k, v in x.items() if v == v} for x in rem_entries]
+        for entry in rem_entries:
+            logger.info(entry)
+
     def clean_no_doi(self, clean_df):
         df = clean_df
+        logger.info("NO DOI:")
+        self.log_removal(df[df['doi'].isnull()])
         clean_df = df.dropna(subset=['doi'])
         n_no_doi = df.shape[0] - clean_df.shape[0]
         return clean_df, n_no_doi
 
     def clean_no_abst(self, clean_df):
         df = clean_df
+        logger.info("NO ABSTRACT:")
+        self.log_removal(df[df['abstract'].isnull()])
         clean_df = df.dropna(subset=['abstract'])
         n_no_abstract = df.shape[0] - clean_df.shape[0]
         return clean_df, n_no_abstract
 
     def clean_no_title(self, clean_df):
         df = clean_df
+        logger.info("NO TITLE:")
+        self.log_removal(df[df['title'].isnull()])
         clean_df = df.dropna(subset=['title'])
         n_no_title = df.shape[0] - clean_df.shape[0]
         return clean_df, n_no_title
 
     def clean_duplicate(self, df):
-        # Removing duplicates (An entry is considered a duplicate if the title, type (Journal, Article, etc...) and
-        # abstract are the same. We keep the first entry in the dataframe because that one is usually the most
-        # relevant, per the Web Of Science criteria.
+        # Removing duplicates (An entry is considered a duplicate if the title and type (Journal, Article, etc...)
+        # are the same. We keep the first entry in the dataframe because that one is usually the most relevant,
+        # per the Web Of Science criteria.
+        logger.info("DUPLICATES:")
+        self.log_removal(df[df.duplicated(subset=['title', 'type_of_reference'], keep='first')])
         clean_df = df.drop_duplicates(subset=['title', 'type_of_reference'], keep='first')
         n_duplicated = df.shape[0] - clean_df.shape[0]
         return clean_df, n_duplicated
@@ -114,6 +131,7 @@ class DataCleaner:
             rispy.dump(self.out_entries, outfile)
 
 if __name__ == '__main__':
+    logging.basicConfig(filename="log/datacleaner.log", level=logging.INFO, encoding='UTF-8', filemode='w')
     cleaner = DataCleaner()
     #cleaner.add_file('testdata/artf-intl-wos.ris')
 
