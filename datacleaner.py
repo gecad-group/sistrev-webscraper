@@ -63,7 +63,7 @@ class DataCleaner:
         # Removing no DOI entries
         # If an entry does not have a Digital Object Identifier, it is removed as we cannot retrieve the PDF
         #  and the article itself probably isn't very relevant
-        # We remove these first, because it's the method that eliminates the most articles
+        # We remove these first, because when removing duplicates, we guarantee to have the version with doi, as the non doi is already gone (happens in a lot more than I thought)
         clean_df, n_no_doi = self.clean_no_doi(clean_df)
 
         # Removing no title
@@ -82,11 +82,10 @@ class DataCleaner:
         # remove keys when value is NaN
         self.out_entries = [{k: v for k, v in x.items() if v == v} for x in self.out_entries]
 
-        # print(clean_df.shape[0])
-
         return n_duplicated, n_no_title, n_no_abstract, n_no_doi
 
     def log_removal(self, df: pd.DataFrame):
+        """Logs the removal of a result with its title, authors, type and doi (if these exist)"""
         rem_entries = df[['title', 'authors', 'type_of_reference', 'doi']].to_dict("records")
         rem_entries = [{k: v for k, v in x.items() if v == v} for x in rem_entries]
         for entry in rem_entries:
