@@ -116,11 +116,12 @@ class DataCleaner:
         return clean_df, n_no_title
 
     def clean_duplicate(self, df):
-        # Removing duplicates (An entry is considered a duplicate if the title is the same for two articles.
-        # We keep the first entry in the dataframe.
+        # Removing duplicates (An entry is considered a duplicate if the title and type (Journal, Article, etc...)
+        # are the same. We keep the first entry in the dataframe because that one is usually the most relevant,
+        # per the Web Of Science criteria.
         logger.info("DUPLICATES:")
-        self.log_removal(df[df.duplicated(subset=['title'], keep='first')])
-        clean_df = df.drop_duplicates(subset=['title'], keep='first')
+        self.log_removal(df[df.duplicated(subset=['title', 'type_of_reference'], keep='first')])
+        clean_df = df.drop_duplicates(subset=['title', 'type_of_reference'], keep='first')
         n_duplicated = df.shape[0] - clean_df.shape[0]
         return clean_df, n_duplicated
 
