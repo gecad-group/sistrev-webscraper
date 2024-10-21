@@ -11,6 +11,11 @@ from configparser import ConfigParser
 
 import prerunchecks
 
+try:
+    import readline
+except:
+    pass #readline not available
+
 
 class metadataScraper:
     url = "https://www.webofscience.com/wos/woscc/basic-search"

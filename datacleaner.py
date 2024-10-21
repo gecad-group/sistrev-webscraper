@@ -7,6 +7,11 @@ import pandas as pd
 
 import logging
 
+try:
+    import readline
+except:
+    pass #readline not available
+
 logger = logging.getLogger(__name__)
 
 class DataCleaner:
