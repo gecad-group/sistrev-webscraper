@@ -6,4 +6,4 @@ asreview~=1.6.3
 pycurl~=7.45.3
 certifi~=2024.7.4
 matplotlib~=3.9.0
-scidownl~=1.0.2re
+scidownl~=1.0.2
