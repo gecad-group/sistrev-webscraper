@@ -129,6 +129,9 @@ class DataCleaner:
         logger.info("DUPLICATES:")
         self.log_removal(df[df.duplicated(subset=['title', 'type_of_reference'], keep='first')])
         clean_df = df.drop_duplicates(subset=['title', 'type_of_reference'], keep='first')
+        logger.info("DUPLICATES [DOI]:")
+        self.log_removal(df[df.duplicated(subset=['doi'], keep='first')])
+        clean_df = clean_df.drop_duplicates(subset=['doi'], keep='first')
         n_duplicated = df.shape[0] - clean_df.shape[0]
         return clean_df, n_duplicated
 
