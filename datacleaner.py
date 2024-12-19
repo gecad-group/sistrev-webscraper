@@ -60,6 +60,13 @@ class DataCleaner:
         data_size = df.shape[0]
         clean_df = df
 
+        # Checking the DOI column
+        # Some databases export the DOI as a link, so we need to extract the DOI from the link
+        # We do this by removing the 'https://doi.org/' part of the link and keeping the rest
+        if 'doi' in clean_df.columns:
+            clean_df['doi'] = clean_df['doi'].str.replace('https://doi.org/', '')
+
+
         # Removing no DOI entries
         # If an entry does not have a Digital Object Identifier, it is removed as we cannot retrieve the PDF
         #  and the article itself probably isn't very relevant
