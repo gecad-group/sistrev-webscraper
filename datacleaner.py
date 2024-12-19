@@ -132,6 +132,8 @@ class DataCleaner:
         print("Cleaned results exported to " + path + '/out.ris')
 
 if __name__ == '__main__':
+    # check if the log folder exists, if not, create it
+    os.makedirs("log", exist_ok=True)
     logging.basicConfig(filename="log/datacleaner.log", level=logging.INFO, encoding='UTF-8', filemode='w')
     cleaner = DataCleaner()
     #cleaner.add_file('testdata/artf-intl-wos.ris')
