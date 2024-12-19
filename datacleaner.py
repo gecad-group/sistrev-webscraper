@@ -1,5 +1,7 @@
 import os.path
+from concurrent.futures.thread import ThreadPoolExecutor
 
+import requests
 import rispy
 import pandas as pd
 
@@ -103,8 +105,22 @@ class DataCleaner:
         logger.info("NO DOI:")
         self.log_removal(df[df['doi'].isnull()])
         clean_df = df.dropna(subset=['doi'])
+
+        logger.info("DOI NOT REGISTERED:")
+        # check the validity of all DOIs, using https://doi.org/api/handles/DOI. If the response code is not 1, the DOI is invalid
+        # This is done to prevent the program from trying to download a PDF from a non-existing DOI
+        with ThreadPoolExecutor(int(len(self.in_entries) / 5)) as executor:
+            valid_dois = list(executor.map(self.is_valid_doi, clean_df['doi']))
+
+        valid_dois_series = pd.Series(valid_dois, index=clean_df.index)
+        self.log_removal(clean_df[~valid_dois_series])
+        clean_df = clean_df[valid_dois_series]
+
         n_no_doi = df.shape[0] - clean_df.shape[0]
         return clean_df, n_no_doi
+
+    def is_valid_doi(self, doi):
+        return requests.get(f'https://doi.org/api/handles/{doi}').json()['responseCode'] == 1
 
     def clean_no_abst(self, clean_df):
         df = clean_df
@@ -126,7 +142,7 @@ class DataCleaner:
         # Removing duplicates (An entry is considered a duplicate if the title and type (Journal, Article, etc...)
         # are the same. We keep the first entry in the dataframe because that one is usually the most relevant,
         # per the Web Of Science criteria.
-        logger.info("DUPLICATES:")
+        logger.info("DUPLICATES [Title and type]:")
         self.log_removal(df[df.duplicated(subset=['title', 'type_of_reference'], keep='first')])
         clean_df = df.drop_duplicates(subset=['title', 'type_of_reference'], keep='first')
         logger.info("DUPLICATES [DOI]:")
@@ -155,9 +171,14 @@ if __name__ == '__main__':
         f = input(": ").replace('"', '')
 
     print(f'Total number of articles imported: {cleaner.count_in_entries()}')
+    print("Cleaning data...")
+
+    start_time = pd.Timestamp.now()
 
     n_dup, n_no_title, n_no_abst, n_no_doi = cleaner.clean_entries()
     clean = cleaner.count_out_entries()
+
+    end_time = pd.Timestamp.now()
 
     print(f'Number of duplicated entries: {n_dup}')
     print(f'Number of entries without title: {n_no_title}')
@@ -165,5 +186,7 @@ if __name__ == '__main__':
     print(f'Number of entries without doi: {n_no_doi}')
     print(f'Number of entries after cleanup: {clean}')
     print("Additional info about removed files in log/datacleaner.log")
+    #print(f"Time taken: {end_time - start_time}")
+    logger.info(f"Time taken: {end_time - start_time}")
 
     cleaner.export_data("export")
