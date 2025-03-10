@@ -6,6 +6,12 @@ import rispy
 import pandas as pd
 
 import logging
+from termcolor import colored
+
+try:
+    import readline
+except:
+    pass #readline not available
 
 logger = logging.getLogger(__name__)
 
@@ -166,8 +172,11 @@ if __name__ == '__main__':
 
     print("Path of the files to import (Press ENTER with empty input to terminate).")
     f = input(": ").replace('"', '')
-    while (len(f) > 0):
-        cleaner.add_file(os.path.abspath(f))
+    while len(f) > 0:
+        try:
+            cleaner.add_file(os.path.abspath(f))
+        except FileNotFoundError:
+            print(colored("The file doesn't exist! Please try again.", "red"))
         f = input(": ").replace('"', '')
 
     print(f'Total number of articles imported: {cleaner.count_in_entries()}')

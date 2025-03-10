@@ -9,6 +9,11 @@ import os
 import re
 from datacleaner import DataCleaner
 
+try:
+    import readline
+except:
+    pass #readline not available
+
 scihub_urls = ['https://sci-hub.se', 'https://sci-hub.st', 'https://sci-hub.yt']
 
 class PDFScraper:
