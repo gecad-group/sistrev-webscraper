@@ -1,5 +1,5 @@
 rispy~=0.7.1
-pandas~=2.2.1
+pandas~=2.2.3
 requests~=2.32.0
 selenium~=4.29.0
 asreview~=1.6.6
