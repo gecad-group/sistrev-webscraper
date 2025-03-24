@@ -1,7 +1,7 @@
 rispy~=0.7.1
 pandas~=2.2.1
 requests~=2.32.0
-selenium~=4.29.0
+selenium~=4.30.0
 asreview~=1.6.6
 pycurl~=7.45.6
 certifi~=2025.1.31
