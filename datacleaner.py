@@ -1,5 +1,7 @@
 import os.path
 from concurrent.futures.thread import ThreadPoolExecutor
+from pathlib import Path
+from io import FileIO
 
 import requests
 import rispy
@@ -39,11 +41,11 @@ class DataCleaner:
 
         return len(self.out_entries)
 
-    #TODO: Replace/Add the option to use a stream instead of a filepath
-    def add_file(self, filepath: str) -> None:
+    def add_file(self, file: FileIO | Path | str) -> None:
         """Adds the entries from a file to self.in_entries"""
-        with open(filepath, 'r', encoding='utf-8') as f:
-            self.in_entries = self.in_entries + rispy.load(f, encoding='utf-8')
+        if isinstance(file, str):
+            file = Path(file)
+        self.in_entries = self.in_entries + rispy.load(file, encoding='utf-8')
 
     def clean_entries(self) -> tuple[int, int, int, int]:
         """
@@ -159,12 +161,26 @@ class DataCleaner:
         n_duplicated = df.shape[0] - clean_df.shape[0]
         return clean_df, n_duplicated
 
-    #TODO: Add the option to use a stream instead of a filepath
     def export_data(self, path: str = ""):
+        """Exports the cleaned data to a file named out.ris in the path specified"""
+        if Path(path).is_file() or Path(path).suffix == '.ris':
+            raise ValueError("The path is a file, not a directory!")
         os.makedirs(os.path.abspath(path), exist_ok=True)
         with open(path + '/out.ris', 'w', encoding='utf-8') as outfile:
             rispy.dump(self.out_entries, outfile)
         print("Cleaned results exported to " + path + '/out.ris')
+
+    def export_data_tofile(self, file: FileIO | Path | str):
+        """Exports the cleaned data to a file"""
+        if isinstance(file, str):
+            file = Path(file)
+        if isinstance(file, Path):
+            if file.is_dir():
+                raise Exception("The path is a directory, not a file!")
+            if file.suffix != '.ris':
+                raise Exception("The file is not a RIS file!")
+        rispy.dump(self.out_entries, file)
+        print("Cleaned results exported to " + file.name)
 
 if __name__ == '__main__':
     # check if the log folder exists, if not, create it
