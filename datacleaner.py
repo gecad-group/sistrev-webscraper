@@ -13,7 +13,7 @@ try:
 except:
     pass #readline not available
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 class DataCleaner:
     """
@@ -21,8 +21,9 @@ class DataCleaner:
     Removes duplicate entries, entries without title and entries without abstract
     """
 
-    def __init__(self):
+    def __init__(self, logger: logging.Logger = logging.getLogger(__name__)):
         # entries to be cleaned
+        self.logger = logger
         self.in_entries: list[dict] = []
 
         # output entries
@@ -38,6 +39,7 @@ class DataCleaner:
 
         return len(self.out_entries)
 
+    #TODO: Replace/Add the option to use a stream instead of a filepath
     def add_file(self, filepath: str) -> None:
         """Adds the entries from a file to self.in_entries"""
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -104,15 +106,15 @@ class DataCleaner:
         rem_entries = df[['title', 'authors', 'type_of_reference', 'doi']].to_dict("records")
         rem_entries = [{k: v for k, v in x.items() if v == v} for x in rem_entries]
         for entry in rem_entries:
-            logger.info(entry)
+            self.logger.info(entry)
 
     def clean_no_doi(self, clean_df):
         df = clean_df
-        logger.info("NO DOI:")
+        self.logger.info("NO DOI:")
         self.log_removal(df[df['doi'].isnull()])
         clean_df = df.dropna(subset=['doi'])
 
-        logger.info("DOI NOT REGISTERED:")
+        self.logger.info("DOI NOT REGISTERED:")
         # check the validity of all DOIs, using https://doi.org/api/handles/DOI. If the response code is not 1, the DOI is invalid
         # This is done to prevent the program from trying to download a PDF from a non-existing DOI
         with ThreadPoolExecutor(int(len(self.in_entries) / 5)) as executor:
@@ -130,7 +132,7 @@ class DataCleaner:
 
     def clean_no_abst(self, clean_df):
         df = clean_df
-        logger.info("NO ABSTRACT:")
+        self.logger.info("NO ABSTRACT:")
         self.log_removal(df[df['abstract'].isnull()])
         clean_df = df.dropna(subset=['abstract'])
         n_no_abstract = df.shape[0] - clean_df.shape[0]
@@ -138,7 +140,7 @@ class DataCleaner:
 
     def clean_no_title(self, clean_df):
         df = clean_df
-        logger.info("NO TITLE:")
+        self.logger.info("NO TITLE:")
         self.log_removal(df[df['title'].isnull()])
         clean_df = df.dropna(subset=['title'])
         n_no_title = df.shape[0] - clean_df.shape[0]
@@ -148,15 +150,16 @@ class DataCleaner:
         # Removing duplicates (An entry is considered a duplicate if the title and type (Journal, Article, etc...)
         # are the same. We keep the first entry in the dataframe because that one is usually the most relevant,
         # per the Web Of Science criteria.
-        logger.info("DUPLICATES [Title and type]:")
+        self.logger.info("DUPLICATES [Title and type]:")
         self.log_removal(df[df.duplicated(subset=['title', 'type_of_reference'], keep='first')])
         clean_df = df.drop_duplicates(subset=['title', 'type_of_reference'], keep='first')
-        logger.info("DUPLICATES [DOI]:")
+        self.logger.info("DUPLICATES [DOI]:")
         self.log_removal(df[df.duplicated(subset=['doi'], keep='first')])
         clean_df = clean_df.drop_duplicates(subset=['doi'], keep='first')
         n_duplicated = df.shape[0] - clean_df.shape[0]
         return clean_df, n_duplicated
 
+    #TODO: Add the option to use a stream instead of a filepath
     def export_data(self, path: str = ""):
         os.makedirs(os.path.abspath(path), exist_ok=True)
         with open(path + '/out.ris', 'w', encoding='utf-8') as outfile:
@@ -167,7 +170,8 @@ if __name__ == '__main__':
     # check if the log folder exists, if not, create it
     os.makedirs("log", exist_ok=True)
     logging.basicConfig(filename="log/datacleaner.log", level=logging.INFO, encoding='UTF-8', filemode='w')
-    cleaner = DataCleaner()
+    logger = logging.getLogger(__name__)
+    cleaner = DataCleaner(logger)
     #cleaner.add_file('testdata/artf-intl-wos.ris')
 
     print("Path of the files to import (Press ENTER with empty input to terminate).")
