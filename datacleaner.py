@@ -179,6 +179,7 @@ class DataCleaner:
                 raise ValueError("The path is a directory, not a file!")
             if file.suffix != '.ris':
                 raise ValueError("The file is not a RIS file!")
+        rispy.dump(self.out_entries, file)
         print("Cleaned results exported!")
 
 if __name__ == '__main__':
