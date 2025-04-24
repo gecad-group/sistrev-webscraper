@@ -1,7 +1,7 @@
 import os.path
 from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
-from io import FileIO
+from io import TextIOWrapper
 
 import requests
 import rispy
@@ -41,7 +41,7 @@ class DataCleaner:
 
         return len(self.out_entries)
 
-    def add_file(self, file: FileIO | Path | str) -> None:
+    def add_file(self, file: TextIOWrapper | Path | str) -> None:
         """Adds the entries from a file to self.in_entries"""
         if isinstance(file, str):
             file = Path(file)
@@ -170,7 +170,7 @@ class DataCleaner:
             rispy.dump(self.out_entries, outfile)
         print("Cleaned results exported to " + path + '/out.ris')
 
-    def export_data_tofile(self, file: FileIO | Path | str):
+    def export_data_tofile(self, file: TextIOWrapper | Path | str):
         """Exports the cleaned data to a file"""
         if isinstance(file, str):
             file = Path(file)
