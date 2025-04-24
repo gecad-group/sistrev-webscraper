@@ -8,3 +8,4 @@ certifi~=2025.1.31
 matplotlib~=3.10.1
 scidownl~=1.0.2
 termcolor~=2.5.0
+streamlit
