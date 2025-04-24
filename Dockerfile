@@ -9,6 +9,7 @@ RUN apt update && apt install -y build-essential curl software-properties-common
 RUN pip install --no-cache-dir streamlit
 
 COPY streamlit-app.py .
+COPY datacleaner.py .
 
 EXPOSE 8501
 
