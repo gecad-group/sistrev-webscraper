@@ -180,7 +180,7 @@ class DataCleaner:
             if file.suffix != '.ris':
                 raise Exception("The file is not a RIS file!")
         rispy.dump(self.out_entries, file)
-        print("Cleaned results exported to " + file.name)
+        print("Cleaned results exported!")
 
 if __name__ == '__main__':
     # check if the log folder exists, if not, create it
