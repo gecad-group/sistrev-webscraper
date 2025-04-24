@@ -50,7 +50,7 @@ class TestDataCleaner(TestCase):
     def test_export_to_file_dir(self):
         try:
             self.cleaner.export_data_tofile("/tmp")
-        except Exception as e:
+        except ValueError as e:
             self.assertEqual(str(e), "The path is a directory, not a file!")
         else:
             self.fail()
