@@ -6,11 +6,9 @@ LABEL version="1.0"
 WORKDIR /app
 RUN apt update && apt install -y build-essential curl software-properties-common && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir streamlit
+COPY streamlit-app.py datacleaner.py requirements.txt ./
 
-COPY streamlit-app.py .
-COPY datacleaner.py .
-
+RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8501
 
 HEALTHCHECK CMD curl --fail https://localhost:8501/_stcore/health
