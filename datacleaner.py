@@ -176,10 +176,9 @@ class DataCleaner:
             file = Path(file)
         if isinstance(file, Path):
             if file.is_dir():
-                raise Exception("The path is a directory, not a file!")
+                raise ValueError("The path is a directory, not a file!")
             if file.suffix != '.ris':
-                raise Exception("The file is not a RIS file!")
-        rispy.dump(self.out_entries, file)
+                raise ValueError("The file is not a RIS file!")
         print("Cleaned results exported!")
 
 if __name__ == '__main__':
