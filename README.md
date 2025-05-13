@@ -4,6 +4,11 @@ This is the repo for my PESTI Project: _Development of a web scraper for bibliog
 
 This project consists of a Python Notebook that assists an investigator in the process of systematic reviews.
 
+>[!NOTE]
+>__The app has been updated!__
+>
+>Now there is a web version of the datacleaner module. It should be [available](http://192.168.2.68:8502) if connected to GECAD's internal network.
+
 ### Dependencies
 This readme file assumes a Linux environment, but instructions for Windows will also be provided
 
